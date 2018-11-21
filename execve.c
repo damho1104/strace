@@ -109,7 +109,7 @@ decode_execve(struct tcb *tcp, const unsigned int index)
         }
         else{
             tprints("$\"UNKNOWN\"$, ");
-        }
+       }
     }
     /* ---------------------------------------- */
 
