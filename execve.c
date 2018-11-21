@@ -96,6 +96,23 @@ decode_execve(struct tcb *tcp, const unsigned int index)
 	printargv(tcp, tcp->u_arg[index + 1]);
 	tprints(", ");
 
+    /* codescroll / minhyuk: prints process cwd */
+    char buf[1024] = {0,};
+    char cwdpath[1024] = {0,};
+    sprintf(cwdpath, "/proc/%d/cwd", tcp->pid);
+    if(readlink(cwdpath, buf, sizeof(buf)) != -1){
+        tprintf("$\"%s\", ", buf);
+    }
+    else{
+        if(getcwd(buf, sizeof(buf)) != 0){
+            tprintf("$\"%s\", ", buf);          
+        }
+        else{
+            tprints("$\"UNKNOWN\", ");
+        }
+    }
+    /* ---------------------------------------- */
+
 	(abbrev(tcp) ? printargc : printargv) (tcp, tcp->u_arg[index + 2]);
 }
 
