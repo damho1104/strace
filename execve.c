@@ -101,14 +101,14 @@ decode_execve(struct tcb *tcp, const unsigned int index)
     char cwdpath[1024] = {0,};
     sprintf(cwdpath, "/proc/%d/cwd", tcp->pid);
     if(readlink(cwdpath, buf, sizeof(buf)) != -1){
-        tprintf("$\"%s\", ", buf);
+        tprintf("$\"%s\"$, ", buf);
     }
     else{
         if(getcwd(buf, sizeof(buf)) != 0){
-            tprintf("$\"%s\", ", buf);          
+            tprintf("$\"%s\"$, ", buf);          
         }
         else{
-            tprints("$\"UNKNOWN\", ");
+            tprints("$\"UNKNOWN\"$, ");
         }
     }
     /* ---------------------------------------- */
