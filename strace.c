@@ -616,7 +616,12 @@ printleader(struct tcb *tcp)
 			 * case 2: split log, we are the same tcb, but our last line
 			 * didn't finish ("SIGKILL nuked us after syscall entry" etc).
 			 */
-			tprints(" <unfinished ...>\n");
+			//LDH, disable output when cstrace capture function related on fork.
+			//tprints(" <unfinished ...>\n");
+			if(strcmp(tcp->s_ent->sys_name, "vfork") != 0 ||
+			   strcmp(tcp->s_ent->sys_name, "fork") != 0){
+				tprints(" <unfinished ...>\n");
+			}
 			printing_tcp->curcol = 0;
 		}
 	}
@@ -2175,7 +2180,12 @@ print_event_exit(struct tcb *tcp)
 	if (followfork < 2 && printing_tcp && printing_tcp != tcp
 	    && printing_tcp->curcol != 0) {
 		set_current_tcp(printing_tcp);
-		tprints(" <unfinished ...>\n");
+		//LDH, disable output when cstrace capture function related on fork.
+		//tprints(" <unfinished ...>\n");
+		if(strcmp(tcp->s_ent->sys_name, "vfork") != 0 ||
+		   strcmp(tcp->s_ent->sys_name, "fork") != 0){
+			tprints(" <unfinished ...>\n");
+		}
 		flush_tcp_output(printing_tcp);
 		printing_tcp->curcol = 0;
 		set_current_tcp(tcp);
@@ -2186,6 +2196,17 @@ print_event_exit(struct tcb *tcp)
 		tcp->flags &= ~TCB_REPRINT;
 		printleader(tcp);
 		tprintf("<... %s resumed>", tcp->s_ent->sys_name);
+		//LDH
+/*
+		if(strcmp(tcp->s_ent->sys_name, "vfork") == 0 ||
+		   strcmp(tcp->s_ent->sys_name, "fork") == 0 ||
+		   strcmp(tcp->s_ent->sys_name, "open") == 0 ||
+		   strcmp(tcp->s_ent->sys_name, "openat") == 0 ||
+		   strcmp(tcp->s_ent->sys_name, "execve") == 0){
+			printleader(tcp);
+			tprintf("<... %s resumed>", tcp->s_ent->sys_name);
+		}
+*/
 	}
 
 	if (!(tcp->sys_func_rval & RVAL_DECODED)) {
@@ -2193,7 +2214,12 @@ print_event_exit(struct tcb *tcp)
 		 * The decoder has probably decided to print something
 		 * on exiting syscall which is not going to happen.
 		 */
-		tprints(" <unfinished ...>");
+		//LDH, disable output when cstrace capture function related on fork.
+		//tprints(" <unfinished ...>");
+		if(strcmp(tcp->s_ent->sys_name, "vfork") != 0 ||
+		   strcmp(tcp->s_ent->sys_name, "fork") != 0){
+			tprints(" <unfinished ...>");
+		}
 	}
 
 	printing_tcp = tcp;

@@ -638,8 +638,14 @@ syscall_entering_trace(struct tcb *tcp, unsigned int *sig)
 	}
 #endif
 
-	printleader(tcp);
-	tprintf("%s(", tcp->s_ent->sys_name);
+	//LDH, disable output when cstrace capture function related on fork.
+	//printleader(tcp);
+	//tprintf("%s(", tcp->s_ent->sys_name);
+        if(strcmp(tcp->s_ent->sys_name, "fork") != 0 ||
+           strcmp(tcp->s_ent->sys_name, "vfork") != 0){
+		printleader(tcp);
+		tprintf("%s(", tcp->s_ent->sys_name);
+	}
 	int res = raw(tcp) ? printargs(tcp) : tcp->s_ent->sys_func(tcp);
 	fflush(tcp->outf);
 	return res;
@@ -713,7 +719,15 @@ syscall_exiting_trace(struct tcb *tcp, struct timespec *ts, int res)
 	if ((followfork < 2 && printing_tcp != tcp) || (tcp->flags & TCB_REPRINT)) {
 		tcp->flags &= ~TCB_REPRINT;
 		printleader(tcp);
-		tprintf("<... %s resumed> ", tcp->s_ent->sys_name);
+                //LDH, print message differntly when cstrace capture function related on fork.
+		//tprintf("<... %s resumed> ", tcp->s_ent->sys_name);
+                if(strcmp(tcp->s_ent->sys_name, "vfork") == 0 ||
+                   strcmp(tcp->s_ent->sys_name, "fork") == 0){
+			tprintf(" ***pid-chid fork ");
+		}
+		else{
+			tprintf("<... %s resumed> ", tcp->s_ent->sys_name);
+		}
 	}
 	printing_tcp = tcp;
 
